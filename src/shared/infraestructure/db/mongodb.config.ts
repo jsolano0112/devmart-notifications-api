@@ -1,10 +1,8 @@
 import mongoose from 'mongoose';
-import { env } from 'process';
-const DB_PASSWORD = env.DB_PASSWORD;
-const DB_USERNAME = env.DB_USERNAME;
-const MONGOATLAS_URL: string = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.97mongr.mongodb.net/?appName=Cluster0`;
+import 'dotenv/config';
+const DB_NAME: string = "notifications";
+const MONGOATLAS_URL: string = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.97mongr.mongodb.net/${DB_NAME}?appName=Cluster0`;
 
-const DB_NAME: string = '';
 
 
 export const dbConnection = async () => {
