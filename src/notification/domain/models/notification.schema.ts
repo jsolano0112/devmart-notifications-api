@@ -3,7 +3,7 @@ import { INotification } from '../../../shared/interfaces/notifications';
 
 const notificationSchema = new Schema<INotification & { attempts?: number; delivered?: boolean; lastError?: string }>(
   {
-    userId: { type: Number, required: true },
+    userId: { type: Schema.Types.ObjectId, required: true },
     message: { type: String, required: true },
     type: { type: String, required: false },
     read: { type: Boolean, default: false },

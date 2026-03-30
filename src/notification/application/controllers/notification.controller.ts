@@ -10,7 +10,7 @@ export class NotificationController {
     try {
       const { userId } = request.params;
       const notifications = await NotificationServiceContainer.getByUser.run(
-        Number(userId),
+       userId,
       );
       return response.status(200).json(notifications);
     } catch (error) {

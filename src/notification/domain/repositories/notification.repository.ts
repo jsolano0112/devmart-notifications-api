@@ -11,7 +11,7 @@ export class NotificationRepository {
     }
   }
 
-  public async getByUser(userId: number) {
+  public async getByUser(userId: any) {
     try {
       const notifications = await NotificationSchema.find({ userId }).lean();
       return notifications;

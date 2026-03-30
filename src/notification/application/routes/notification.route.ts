@@ -3,7 +3,6 @@ import { NotificationController } from '../controllers/notification.controller';
 import { validateId } from '../../../shared/helpers/get-id.validator';
 import { validateCreateNotification } from '../middlewares/create-notification.validator';
 import { verifyAuthToken } from '../../../shared/helpers/jwt-validator';
-import { validateUserIdNumberParameter } from '../../../shared/helpers/user-id.validator';
 
 const controller = new NotificationController();
 const notificationRouter: Router = Router();
@@ -44,7 +43,6 @@ const notificationRouter: Router = Router();
 
 notificationRouter.get(
   '/getByUser/:userId',
-  validateUserIdNumberParameter,
   verifyAuthToken,
   controller.getByUser,
 );
