@@ -4,7 +4,7 @@ import { RepositoryContainer } from '../../../shared/infraestructure/respository
 export class getNotificationsByUser {
   constructor(private repo: RepositoryContainer) {}
 
-  async run(userId: number) {
+  async run(userId: any) {
     const user = await this.repo.users.getUserById(userId);
     if (!user) throw new Exception('User not found.', 404);
     const notifications = await this.repo.notifications.getByUser(userId);
