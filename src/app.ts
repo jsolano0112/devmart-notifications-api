@@ -1,14 +1,12 @@
 import express, { Application } from 'express';
 import appRouter from './app-route';
-import { Server } from 'socket.io';
 import { dbConnection } from './shared/infraestructure/db/mongodb.config';
 import { errorHandler } from './shared/helpers/error-handler';
 import { setupSwagger } from './swagger';
 import cors from "cors";
 
-const PORT: number = 3004;
+const PORT: number = 3002;
 const app: Application = express();
-const io = new Server(3005);
 
 // SWAGGER
 setupSwagger(app);
@@ -33,20 +31,9 @@ dbConnection();
 //END - DB CONNECTION
 
 
-//SOCKET
-io.on('connection', (socket) => {
-  console.log('connection', socket.id);
-
-  socket.on('disconnect', () => {
-    console.log('disconnect', socket.id);
-  });
-});
-
-//END - SOCKET
-
 
 
 app.listen(PORT, () => {
-  console.log('SERVER RUNNING - http://localhost:3004/api/v1/');
-  console.log('SWAGGER NOTIFICATIONS API - http://localhost:3004/swagger');
+  console.log('SERVER RUNNING - http://localhost:3002/api/v1/');
+  console.log('SWAGGER NOTIFICATIONS API - http://localhost:3002/swagger');
 });
