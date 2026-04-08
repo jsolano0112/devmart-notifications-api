@@ -35,10 +35,10 @@ pipeline {
 
     post {
         success {
-            echo 'Imagen notifications-api construida correctamente ✅'
+            echo 'Imagen notifications-api construida correctamente'
         }
         failure {
-            echo 'Error al construir la imagen ❌'
+            echo 'Error al construir la imagen'
         }
     }
 }
