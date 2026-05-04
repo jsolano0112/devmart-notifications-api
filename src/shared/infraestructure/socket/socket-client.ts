@@ -1,7 +1,7 @@
 import { INotification } from "../../interfaces/notifications";
 
 // notification-client.ts
-const SOCKET_URL = process.env.SOCKET_SERVER_URL || 'http://localhost:5000';
+const SOCKET_URL = process.env.SOCKET_SERVER_URL;
 
 async function send(notification: INotification) {
   return new Promise((resolve, reject) => {
