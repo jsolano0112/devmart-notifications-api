@@ -1,12 +1,18 @@
-FROM node:20
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+FROM node:20-alpine
 WORKDIR /app
 
-COPY package.json ./
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-RUN npm install
-
+COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
-EXPOSE 3002
+RUN chown -R appuser:appgroup /app
+USER appuser
 
-CMD ["npm","start"]
+EXPOSE 3002
+CMD ["node", "src/index.js"]

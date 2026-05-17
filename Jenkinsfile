@@ -2,72 +2,62 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'notifications-api'
-        WEBSOCKET_IMAGE = 'websocket-service'
-        COMPOSE_DIR = 'C:\\Users\\LENOVO\\Desktop\\electiva 3' 
+        IMAGE_NAME = "jsolano0112/notifications-api"
     }
 
     stages {
-        stage('Instalar Dependencias') {
+
+        stage('Build') {
             steps {
-                echo 'Instalando dependencias...'
-                script {
-                    if (isUnix()) {
-                        sh 'npm install'
-                    } else {
-                        bat 'npm install'
-                    }
+                withCredentials([
+                    string(credentialsId: 'jwt-secret',          variable: 'JWT_SECRET'),
+                    string(credentialsId: 'jwt-refresh-secret',  variable: 'JWT_REFRESH_SECRET'),
+                    string(credentialsId: 'mongo-db-username',   variable: 'DB_USERNAME'),
+                    string(credentialsId: 'mongo-db-password',   variable: 'DB_PASSWORD'),
+                    string(credentialsId: 'socket-server-url', variable: 'SOCKET_SERVER_URL'),
+                ]) {
+                    sh """
+                        docker build \
+                        --build-arg JWT_SECRET=$JWT_SECRET \
+                        --build-arg JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET \
+                        --build-arg JWT_EXPIRE_IN=15m \
+                        --build-arg JWT_REFRESH_EXPIRE_IN=20m \
+                        --build-arg DB_USERNAME=$DB_USERNAME \
+                        --build-arg DB_PASSWORD=$DB_PASSWORD \
+                        -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                        -t ${IMAGE_NAME}:latest \
+                        .
+                    """
                 }
             }
         }
 
-        stage('Construir Imágenes Docker') {
+        stage('Push a DockerHub') {
             steps {
-                echo 'Construyendo imágenes notifications-api y websocket-service...'
-                script {
-                    if (isUnix()) {
-                        sh """
-                            docker build -t ${IMAGE_NAME}:latest .
-                            docker build -t ${WEBSOCKET_IMAGE}:latest .
-                        """
-                    } else {
-                        bat """
-                            docker build -t %IMAGE_NAME%:latest .
-                            docker build -t %WEBSOCKET_IMAGE%:latest .
-                        """
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                        docker push ${IMAGE_NAME}:latest
+                        docker logout
+                    """
                 }
             }
         }
 
-        stage('Desplegar Contenedores') {
+        stage('Limpiar') {
             steps {
-                echo 'Desplegando notifications y websocket...'
-                script {
-                    if (isUnix()) {
-                        sh """
-                            cd "${COMPOSE_DIR}"
-                            docker compose --env-file ./notifications/.env up -d --no-deps --force-recreate \
-                                notifications-api-1 notifications-api-2 \
-                                websocket-1 websocket-2
-                        """
-                    } else {
-                        bat """
-                            cd "%COMPOSE_DIR%"
-                            docker compose --env-file ./notifications/.env up -d --no-deps --force-recreate notifications-api-1 notifications-api-2 websocket-1 websocket-2
-                        """
-                    }
-                }
+                sh "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
             }
         }
     }
 
     post {
-        success {
-            echo 'notifications-api y websocket desplegados correctamente'
-        }
-        failure {
-            echo 'Error al desplegar notifications'
-        }
+        success { echo "✅ ${IMAGE_NAME}:${BUILD_NUMBER} publicado en DockerHub" }
+        failure { echo "❌ Falló el pipeline" }
     }
 }
