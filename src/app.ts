@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: "http://localhost:5173,http://localhost:4000", //Front
-   credentials: false
+  origin: ["http://localhost:5173", "http://localhost:4000"],
+  credentials: false,
 }));
 
 app.use(express.json());
