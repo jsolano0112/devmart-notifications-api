@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: "http://localhost:5173", //Front
+  origin: "http://localhost:5173,http://localhost:4000", //Front
    credentials: false
 }));
 
