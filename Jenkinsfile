@@ -50,6 +50,8 @@ pipeline {
                     )
                 ]) {
                     bat """
+                        icacls "%SSH_KEY%" /inheritance:r
+                        icacls "%SSH_KEY%" /grant:r "%USERNAME%:R"
                         ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" ubuntu@%EC2_IP% "cd /home/ubuntu/devmart-infra && docker-compose pull notifications-api-1 websocket-1 && docker-compose up -d notifications-api-1 websocket-1"
                     """
                 }
