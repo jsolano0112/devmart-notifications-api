@@ -3,37 +3,44 @@ import appRouter from './app-route';
 import { dbConnection } from './shared/infraestructure/db/mongodb.config';
 import { errorHandler } from './shared/helpers/error-handler';
 import { setupSwagger } from './swagger';
-import cors from "cors";
+import cors from 'cors';
 
-const PORT: number = 3002;
+import env from './config';
+
 const app: Application = express();
 
 // SWAGGER
 setupSwagger(app);
-// END - SWAGGER
 
+// LOGS
 app.use((req, res, next) => {
-  console.log(`📡 ${process.env.HOST} -> ${req.method} ${req.url}`);
+  const ip =
+    req.headers['x-real-ip'] ||
+    req.headers['x-forwarded-for'] ||
+    req.socket.remoteAddress;
+
+  console.log(
+    `↔️ ${req.method} ${req.url} | IP: ${ip} | Host: ${req.headers.host}`,
+  );
   next();
 });
 
-app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:4000"],
-  credentials: false,
-}));
+app.use(
+  cors({
+    origin: env.frontUrl,
+    credentials: false,
+  }),
+);
 
 app.use(express.json());
 app.use('/', appRouter);
 app.use(errorHandler);
 
-//DB CONNECTION
+// DB
 dbConnection();
-//END - DB CONNECTION
 
-
-
-
-app.listen(PORT, () => {
-  console.log('SERVER RUNNING - http://localhost:3002/api/v1/');
-  console.log('SWAGGER NOTIFICATIONS API - http://localhost:3002/swagger');
+// START SERVER
+app.listen(env.port, () => {
+  console.log(`SERVER RUNNING - PORT ${env.port}`);
+  console.log(`ENVIRONMENT - ${env.env}`);
 });
